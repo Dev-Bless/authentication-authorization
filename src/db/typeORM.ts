@@ -9,7 +9,7 @@ const AppDataSource = new DataSource({
     username: process.env.USER,
     password: process.env.PASSWORD,
     database:  process.env.DATABASE,
-    entities: [User],
+    entities: [__dirname + '/../models/*.js'],
     synchronize: true,
     logging: false,
 })
