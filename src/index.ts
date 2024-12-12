@@ -18,14 +18,13 @@ async function startServer(): Promise<void> {
 
     const port: string | number | undefined =  process.argv[2] || argv.port ;
 
-    AppDataSource.initialize()
-        .then((d) => console.log('Connected to DB', d.options.database))
-        .catch((e) => console.log('Error connecting to DB', e))
 
-    // app.listen(port, () => {
-    //     console.log(`Server running at http://localhost:${port}`);
-    //
-    // });
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+        AppDataSource.initialize()
+            .then((d) => console.log('Connected to DB', d.options.database))
+            .catch((e) => console.log('Error connecting to DB', e))
+    });
 
 }
 
