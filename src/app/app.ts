@@ -17,7 +17,7 @@ app.use(cors(
 app.use('/api/users',authenticateJWT, appRouter);
 app.use('/api/auth', authRouterApp);
 app.get('/', (req, res) => {
-    res.render('index');
+    res.send('Welcome to the Igus Online Tools Upskilling Authentication Authorization App');
 })
 
 
