@@ -6,15 +6,17 @@ import bcrypt from "bcrypt";
 
 
 export async function login(req: Request, res: Response) {
-    const { email, password } = req.body;
     try {
+        const { email, password } = req.body;
+
         if (!email || !password) {
             res.status(400).send({message: 'Email or password is required'});
             return
         }
+
         const user = await User.findOneBy({ email });
         if (!user) {
-             res.status(404).json({ message: "User not found" });
+             res.status(404).json({ message: "Email or password incorrect" });
             return
         }
 
@@ -37,8 +39,9 @@ export async function login(req: Request, res: Response) {
 
 
 export  async function register (req:Request, res:Response) {
-    const { name, email, phone, password } = req.body;
     try {
+        const { name, email, phone, password } = req.body;
+
         const existingUser = await User.findOneBy({ email });
 
         if (!name || !email || !phone || !password ) {
@@ -55,7 +58,7 @@ export  async function register (req:Request, res:Response) {
 
         if (!checkPasswordValidation(password)) {
             res.status(400).json({
-                message: "Password must be at least 6 characters long and include an uppercase letter, a number, and a special character",
+                message: "Password can't be accepted",
             });
             return
         }
@@ -68,12 +71,22 @@ export  async function register (req:Request, res:Response) {
         user.phone = phone;
 
         user.password = hashedPassword;
-        await user.save();
+        user.save().then(
+            ()=>{
+                res.status(201).json({
+                    status: 201,
+                    message: "Account created successfully",
+                });
+            }
+        ).catch(() =>
+            {
+                res.status(500).json({
+                    message: "An error occurred",
+                })
+            }
+        );
 
-        res.status(201).json({
-            status: 201,
-            message: "Account created successfully",
-        });
+
     }
     catch (err: any) {
         res.status(400).send({
