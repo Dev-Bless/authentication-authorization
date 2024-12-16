@@ -16,7 +16,7 @@ async function startServer(): Promise<void> {
         .parse();
 
 
-    const port: string | number | undefined =  process.argv[2] || argv.port ;
+    const port =  process.argv[2] || argv.port ;
 
 
     app.listen(port, () => {
