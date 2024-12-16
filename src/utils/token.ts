@@ -26,3 +26,15 @@ export function verifyToken(token: string): any {
 }
 
 
+export function generateRefreshToken(user: User | null | void): string {
+    return jwt.sign(
+        { id: user!.id},
+        process.env.RT_SECRET!,
+        { expiresIn: process.env.RT_EXPIRATION || "7d"  },
+    );
+}
+
+
+export function verifyRefreshToken(refreshToken: string): any {
+    return jwt.verify(refreshToken, process.env.RT_SECRET!);
+}

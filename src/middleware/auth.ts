@@ -28,7 +28,7 @@ export function authorizeRole(requiredRole: string) {
         const user = req.body.user;
 
         if (!user || user.role !== requiredRole) {
-             res.status(403).json({ message: 'Forbidden: only admins can delete' });
+             res.status(403).json({ message: 'Forbidden: Unauthorized' });
             return
         }
 
