@@ -42,7 +42,7 @@ export async function getUsers(req:Request, res:Response) {
          res.status(400).send({
             status: 400,
             data: err.message,
-            message: 'Users not found',
+            message: 'Internal Server Error',
         });
     }
 
@@ -51,63 +51,100 @@ export async function getUsers(req:Request, res:Response) {
 
 
 export async function addUser(req:Request<{},{},IUsers>, res:Response){
-        const { name, email, phone, password ,role} = req.body;
+        try {
+            const { name, email, phone, password ,role} = req.body;
 
-        const user = new User();
-        user.name = name;
-        user.email = email;
-        user.phone = phone;
-        user.password = await hashPassword(password);
-        user.role = role;
+            const user = new User();
+            user.name = name;
+            user.email = email;
+            user.phone = phone;
+            user.password = await hashPassword(password);
+            user.role = role;
 
-        user.save()
-        .then((data) => {
-             res.status(200).send({status: 200, data: data, message: 'User added successfully'});
-            return
-        })
-        .catch((err) => {
-             res.status(400).send({status: 400, data: err.message, message: 'User not added'});
-            return
-        });
+            user.save()
+                .then((data) => {
+                    res.status(200).send({status: 200, data: data, message: 'User added successfully'});
+                    return
+                })
+                .catch((err) => {
+                    res.status(400).send({status: 400, data: err.message, message: 'User not added'});
+                    return
+                });
+        }
+        catch (err: any) {
+            res.status(400).send({
+                status: 400,
+                data: err.message,
+                message: 'Internal Server Error',
+            });
+        }
     
 }
 
 
 
 export function getUsersById(req:Request, res:Response) {
-         const userId = parseInt(req.params.id);
-         User.findOneBy({ id: userId})
-        .then((data) =>  res.status(200).send({status: 200, data: data, message: 'User found successfully'}))
-        .catch((err) =>   res.status(404).send({status: 404, data: err.message, message: 'User not found'}));          
+         try {
+             const userId = req.params.id;
+             User.findOneBy({ id: userId})
+                 .then((data) =>  res.status(200).send({status: 200, data: data, message: 'User found successfully'}))
+                 .catch((err) =>   res.status(404).send({status: 404, data: err.message, message: 'User not found'}));
+         }
+         catch (err:any) {
+             res.status(400).send({
+                 status: 400,
+                 data: err.message,
+                 message: 'User not found',
+             });
+         }
      
 }
 
 
 export  function modifyUser(req:Request, res:Response) {
-    const userId = parseInt(req.params.id);
-    const updatedData = req.body;
+   try{
+       const userId = req.params.id;
+       const updatedData = req.body;
 
-     User.update({ id: userId }, updatedData)
-        .then(() =>  res.status(200).send({status: 200, data: updatedData, message: 'User  successfully modified'}))
-        .catch((err) =>   res.status(404).send({status: 404, data: err.message, message: 'User not found'}));               
+       User.update({ id: userId }, updatedData)
+           .then(() =>  res.status(200).send({status: 200, data: updatedData, message: 'User  successfully modified'}))
+           .catch((err) =>   res.status(404).send({status: 404, data: err.message, message: 'User not found'}));
+   }
+   catch (err:any) {
+       res.status(400).send({
+           status: 400,
+           data: err.message,
+           message: 'Internal Server Error',
+       });
+   }
     
     
 }
 
 
 export async function deleteUser(req:Request, res:Response) {      
-    const userId = parseInt(req.params.id);
-    const user = await User.findOneBy({ id: userId });
+    try {
+        const userId = req.params.id;
+        const user = await User.findOneBy({ id: userId });
 
-    if (user?.role === 'admin') {
-        res.status(401).send({ status: 401, message: 'Unauthorized operation' });
-        return
+        if (user?.role === 'admin') {
+            res.status(401).send({ status: 401, message: 'Unauthorized operation' });
+            return
+        }
+
+        User.delete({ id: userId })
+            .then(() =>  res.status(200).send({status: 200, message: 'User deleted successfully'}))
+            .catch((err) =>   res.status(404).send({status: 404, data: err.message, message: 'User not found'}));
     }
-
-     User.delete({ id: userId })
-        .then(() =>  res.status(200).send({status: 200, message: 'User deleted successfully'}))
-        .catch((err) =>   res.status(404).send({status: 404, data: err.message, message: 'User not found'}));
+    catch (err:any) {
+        res.status(400).send({
+            status: 400,
+            data: err.message,
+            message: 'Internal Server Error',
+        });
+    }
 }
+
 
 export async function changeUserRole(req: Request, res: Response) {
     try {
@@ -131,7 +168,6 @@ export async function changeUserRole(req: Request, res: Response) {
             data: { userId: user.id, newRole: user.role },
         });
     } catch (error) {
-        console.error('Error changing user role:', error);
          res.status(500).json({ message: 'Internal Server Error' });
     }
 }
